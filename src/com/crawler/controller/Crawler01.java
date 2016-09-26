@@ -15,6 +15,7 @@ public class Crawler01 {
 		String loginUrl = "https://www.zhihu.com/";
 		String loginHtml = crawler.getHtmlBuUrl(loginUrl);
 		Document doc = Jsoup.parse(loginHtml);
+		System.out.println(doc);
 		Elements  xx = doc.getElementsByClass("question_link");
 System.out.println(xx);
 		
