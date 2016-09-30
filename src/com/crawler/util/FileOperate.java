@@ -1,6 +1,7 @@
 package com.crawler.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,7 +16,8 @@ import org.apache.commons.lang.StringUtils;
 import com.crawler.bean.SaveFile;
 
 public class FileOperate {
-	
+	private static final String savePath = "D:/parseZHIHU";
+	private static final String fileName = "/title.txt";
 	/** 
 	* @Title: getFileByPath 
 	* @Description: TODO(通过文件路径获取文件) 
@@ -45,7 +47,6 @@ public class FileOperate {
 		}
 		return resultStr;
 	}
-	
 	
 	/** 
 	* @Title: getDataFromFile 
@@ -121,4 +122,51 @@ public class FileOperate {
 		}
 		
 	}
+
+	public static void saveDataAsText(String html) throws IOException{
+		if(!StringUtils.isNotEmpty(savePath)||!StringUtils.isNotEmpty(html)){
+			return;
+		}
+		String[] titleArray =  html.split("\\?");
+		
+		File file = new File(savePath+fileName);
+		 if(!file.exists()){
+			 new File(savePath).mkdirs();
+			 file.createNewFile();
+		 }
+		try {
+			BufferedWriter  writer = new BufferedWriter(new FileWriter(file , true));
+			writer.write("\r\n");
+			for(String str : titleArray){
+				writer.write(str+"\r\n");
+			}
+			writer.write("<----------------------------------分割线------------------------------->");
+			writer.flush();
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		System.out.println("<--------------写入完成,请刷新文件夹！------------->");
+	}
+	
+	private static void deleteFile(File f) throws FileNotFoundException {
+		if(!f.exists()){
+			System.out.println("文件不存在！");
+			throw new FileNotFoundException();
+		}
+        // 如果是文件,直接删除
+        if (f.isFile()) {
+            f.delete();
+            return;
+        }
+        // 如果是文件夹,先遍历删除里面的文件,最后在把本文件夹删除
+        File[] fs = f.listFiles();
+        for (File file : fs) {
+            // 递归调用的目的是，文件夹里可能有子文件夹
+            deleteFile(file);
+        }
+        // 删除文件夹
+        f.delete();
+    }
+
 }

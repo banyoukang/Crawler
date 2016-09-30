@@ -150,7 +150,7 @@ public class Crawlering implements Runnable{
 		    return (url);
 		  }
 	
-	public String getHtmlBuUrl(String url){
+	public String getHtmlByUrl(String url){
 		URL queryUrl = verifyUrl(url);
 		StringBuilder result;
 		if(queryUrl == null){
