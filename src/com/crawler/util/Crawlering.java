@@ -12,6 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+
 //核心爬取类
 public class Crawlering implements Runnable{
 	private Map<String,ArrayList<String>> disallowLinkList = new HashMap<String,ArrayList<String>>();
@@ -189,4 +196,45 @@ public class Crawlering implements Runnable{
 			return null;
 		}
 	}
+	
+	public String httpRequest(String url, Map<String, String> params,String charset, boolean pretty) throws IOException {
+		URL queryUrl = verifyUrl(url);
+		StringBuffer response = new StringBuffer();
+		HttpClient client = new HttpClient();
+		client.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		HttpMethod method = new PostMethod(queryUrl.toString());
+		if (params != null) {
+			HttpMethodParams p = new HttpMethodParams();
+			for (Map.Entry<String, String> entry : params.entrySet()) {
+				p.setParameter(entry.getKey(), entry.getValue());
+			}
+			method.setParams(p);
+		}
+		try {
+			client.executeMethod(method);
+System.out.println(method.getStatusCode());
+			if (method.getStatusCode() == HttpStatus.SC_OK) {
+				System.out.println("输出结构："+method.getResponseBodyAsString());
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(method.getResponseBodyAsStream(),
+								charset));
+				String line;
+				while ((line = reader.readLine()) != null) {
+					if (pretty)
+						response.append(line).append(
+								System.getProperty("line.separator"));
+					else
+						response.append(line);
+				}
+				reader.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			method.releaseConnection();
+		}
+
+		return response.toString();
+	}
+	
 }
